@@ -38,11 +38,10 @@ Nuestro increíble equipo hizo posible este proyecto:
 
 ---
 
-## 🏗️ **Actividades Realizadas**  
-1. 🎯 **Definición de requerimientos**: Análisis y recopilación de las necesidades del proyecto.  
-2. 📐 **Diseño de la interfaz**: Creación de maquetas y prototipos.  
-3. 🛠️ **Desarrollo**: Implementación de la lógica de la aplicación en Kotlin.
-4. 🔗 **Integración de ARCore**: Configuración de la base de la realidad aumentada.   
-5. 🚀 **Build**: Generación del APK con Gradle y despliegue en entornos de prueba.  
+## 🏗️ **Actividades Realizadas**   
+1. 📐 **Diseño de la interfaz**: Creación de maquetas y prototipos.  
+2. 🛠️ **Desarrollo**: Implementación de la lógica de la aplicación en Kotlin.
+3. 🔗 **Integración de ARCore**: Configuración de la base de la realidad aumentada.   
+4. 🚀 **Build**: Generación del APK con Gradle y despliegue en entornos de prueba.  
 
 ---

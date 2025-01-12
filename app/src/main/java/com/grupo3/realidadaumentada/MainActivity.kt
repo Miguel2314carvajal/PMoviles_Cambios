@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rifleNode: ArModelNode
     private lateinit var videoNode: VideoNode
     private lateinit var mediaPlayer:MediaPlayer
-
+    private lateinit var dragonNode: ArModelNode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,10 +76,20 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        // Inicializar dragón
+        dragonNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+            loadModelGlbAsync(
+                glbFileLocation = "models/dragon.glb",
+                scaleToUnits = 1f,
+                centerOrigin = Position(-0.5f, 7f)
+            )
+        }
+
         // Agregar todos los modelos a la escena
         sceneView.addChild(sofaNode)
         sceneView.addChild(robotNode)
         sceneView.addChild(rifleNode)
+        sceneView.addChild(dragonNode)
 
         // Configurar el video en el sofaNode
         videoNode = VideoNode(
@@ -106,6 +116,10 @@ class MainActivity : AppCompatActivity() {
         // Colocar rifle a la izquierda
         rifleNode.position = Position(x = -1.5f, y = 0f, z = 0f)
         rifleNode.anchor()
+
+        // Colocar dragón detrás de los otros modelos
+        dragonNode.position = Position(x = -0f, y = -0f, z = -2f)
+        dragonNode.anchor()
 
         sceneView.planeRenderer.isVisible = false
         placeButton.isGone = true

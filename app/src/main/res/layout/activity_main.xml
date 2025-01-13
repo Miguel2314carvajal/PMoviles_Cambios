@@ -10,17 +10,58 @@
         android:id="@+id/sceneView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/place"
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textAlignment="center"
-        android:text="Place"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@drawable/button_background"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.863" />
+        app:layout_constraintVertical_bias="0.95">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/placeSofa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="Sofá"
+            android:textSize="16sp"
+            android:backgroundTint="#FF6200EE"
+            android:textColor="@color/white"/>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/placeRobot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="Robot"
+            android:textSize="16sp"
+            android:backgroundTint="#FF03DAC5"
+            android:textColor="@color/white"/>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/placeTom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="Tom"
+            android:textSize="16sp"
+            android:backgroundTint="#FF018786"
+            android:textColor="@color/white"/>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/placeRifle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rifle"
+            android:textSize="16sp"
+            android:backgroundTint="#FF6200EE"
+            android:textColor="@color/white"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

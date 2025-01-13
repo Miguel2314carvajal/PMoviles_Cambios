@@ -23,12 +23,16 @@ import io.github.sceneview.node.VideoNode
 class MainActivity : AppCompatActivity() {
 
     private lateinit var sceneView: ArSceneView
-    lateinit var placeButton: ExtendedFloatingActionButton
+    private lateinit var placeSofaButton: ExtendedFloatingActionButton
+    private lateinit var placeRobotButton: ExtendedFloatingActionButton
+    private lateinit var placeTomButton: ExtendedFloatingActionButton
+    private lateinit var placeRifleButton: ExtendedFloatingActionButton
     private lateinit var sofaNode: ArModelNode
     private lateinit var robotNode: ArModelNode
     private lateinit var rifleNode: ArModelNode
     private lateinit var videoNode: VideoNode
     private lateinit var mediaPlayer:MediaPlayer
+    private lateinit var tomNode: ArModelNode
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,12 +43,27 @@ class MainActivity : AppCompatActivity() {
         sceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
 
         mediaPlayer = MediaPlayer.create(this, R.raw.ad)
-        placeButton = findViewById(R.id.place)
+        placeSofaButton = findViewById(R.id.placeSofa)
+        placeRobotButton = findViewById(R.id.placeRobot)
+        placeTomButton = findViewById(R.id.placeTom)
+        placeRifleButton = findViewById(R.id.placeRifle)
 
         initializeModels()
 
-        placeButton.setOnClickListener {
-            placeModels()
+        placeSofaButton.setOnClickListener {
+            placeSofa()
+        }
+
+        placeRobotButton.setOnClickListener {
+            placeRobot()
+        }
+
+        placeTomButton.setOnClickListener {
+            placeTom()
+        }
+
+        placeRifleButton.setOnClickListener {
+            placeRifle()
         }
     }
 
@@ -76,12 +95,16 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        // Agregar todos los modelos a la escena
-        sceneView.addChild(sofaNode)
-        sceneView.addChild(robotNode)
-        sceneView.addChild(rifleNode)
+        // Inicializar tom
+        tomNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+            loadModelGlbAsync(
+                glbFileLocation = "models/tom.glb",
+                scaleToUnits = 0.4f,
+                centerOrigin = Position(-0.5f)
+            )
+        }
 
-        // Configurar el video en el sofaNode
+        // Configurar el video
         videoNode = VideoNode(
             sceneView.engine,
             scaleToUnits = 0.7f,
@@ -91,24 +114,40 @@ class MainActivity : AppCompatActivity() {
         ) { _, _ ->
             mediaPlayer.start()
         }
+
+        // Agregar todos los modelos a la escena
+        sceneView.addChild(sofaNode)
+        sceneView.addChild(robotNode)
+        sceneView.addChild(rifleNode)
+        sceneView.addChild(tomNode)
         sofaNode.addChild(videoNode)
     }
 
-    private fun placeModels() {
-        // Colocar sofa en la posición central
+    private fun placeSofa() {
         sofaNode.position = Position(x = 0f, y = 0f, z = 0f)
         sofaNode.anchor()
+        placeSofaButton.isGone = true
+    }
 
-        // Colocar robot a la derecha
+    private fun placeRobot() {
         robotNode.position = Position(x = 1.5f, y = 0f, z = 0f)
         robotNode.anchor()
+        placeRobotButton.isGone = true
+    }
 
-        // Colocar rifle a la izquierda
+    private fun placeTom() {
+        if (!sceneView.children.contains(tomNode)) {
+            sceneView.addChild(tomNode)
+        }
+        tomNode.isVisible = true
+        tomNode.anchor()
+        placeTomButton.isGone = true
+    }
+
+    private fun placeRifle() {
         rifleNode.position = Position(x = -1.5f, y = 0f, z = 0f)
         rifleNode.anchor()
-
-        sceneView.planeRenderer.isVisible = false
-        placeButton.isGone = true
+        placeRifleButton.isGone = true
     }
 
     override fun onPause() {

@@ -45,3 +45,9 @@ Nuestro increíble equipo hizo posible este proyecto:
 4. 🚀 **Build**: Generación del APK con Gradle y despliegue en entornos de prueba.  
 
 ---
+
+## 🖼️ **Capturas de Pantalla**  
+A continuación, algunas imágenes que ilustran la funcionalidad y diseño de la aplicación:  
+
+![image](https://github.com/user-attachments/assets/6f93a49e-6ee0-41c9-acdd-a89cee89593f)
+

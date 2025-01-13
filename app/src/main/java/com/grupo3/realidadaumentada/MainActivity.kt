@@ -27,12 +27,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var placeRobotButton: ExtendedFloatingActionButton
     private lateinit var placeTomButton: ExtendedFloatingActionButton
     private lateinit var placeRifleButton: ExtendedFloatingActionButton
+    private lateinit var placeDragonButton: ExtendedFloatingActionButton
     private lateinit var sofaNode: ArModelNode
     private lateinit var robotNode: ArModelNode
     private lateinit var rifleNode: ArModelNode
+    private lateinit var DragonNode: ArModelNode
     private lateinit var videoNode: VideoNode
     private lateinit var mediaPlayer:MediaPlayer
     private lateinit var tomNode: ArModelNode
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         placeRobotButton = findViewById(R.id.placeRobot)
         placeTomButton = findViewById(R.id.placeTom)
         placeRifleButton = findViewById(R.id.placeRifle)
+        placeDragonButton = findViewById(R.id.placeDragon)
 
         initializeModels()
 
@@ -64,6 +68,10 @@ class MainActivity : AppCompatActivity() {
 
         placeRifleButton.setOnClickListener {
             placeRifle()
+        }
+
+        placeDragonButton.setOnClickListener {
+            placeDragon()
         }
     }
 
@@ -104,6 +112,15 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        // Inicializar Dragon
+        DragonNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+            loadModelGlbAsync(
+                glbFileLocation = "models/dragon.glb",
+                scaleToUnits = 0.6f,
+                centerOrigin = Position(-0.5f)
+            )
+        }
+
         // Configurar el video
         videoNode = VideoNode(
             sceneView.engine,
@@ -120,6 +137,7 @@ class MainActivity : AppCompatActivity() {
         sceneView.addChild(robotNode)
         sceneView.addChild(rifleNode)
         sceneView.addChild(tomNode)
+        sceneView.addChild(DragonNode)
         sofaNode.addChild(videoNode)
     }
 
@@ -148,6 +166,12 @@ class MainActivity : AppCompatActivity() {
         rifleNode.position = Position(x = -1.5f, y = 0f, z = 0f)
         rifleNode.anchor()
         placeRifleButton.isGone = true
+    }
+
+    private fun placeDragon() {
+        DragonNode.position = Position(x = -1.5f, y = 0f, z = 0f)
+        DragonNode.anchor()
+        placeDragonButton.isGone = true
     }
 
     override fun onPause() {

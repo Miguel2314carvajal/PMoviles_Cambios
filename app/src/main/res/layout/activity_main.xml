@@ -62,6 +62,15 @@
             android:backgroundTint="#FF6200EE"
             android:textColor="@color/white"/>
 
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/placeDragon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dragon"
+            android:textSize="16sp"
+            android:backgroundTint="#33ffe6"
+            android:textColor="@color/white"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

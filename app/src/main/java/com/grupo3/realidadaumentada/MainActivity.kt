@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sofaNode: ArModelNode
     private lateinit var robotNode: ArModelNode
     private lateinit var rifleNode: ArModelNode
-    private lateinit var DragonNode: ArModelNode
+    private lateinit var dragonNode: ArModelNode
     private lateinit var videoNode: VideoNode
     private lateinit var mediaPlayer:MediaPlayer
     private lateinit var tomNode: ArModelNode
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Inicializar Dragon
-        DragonNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+        dragonNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
                 glbFileLocation = "models/dragon.glb",
                 scaleToUnits = 0.6f,
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         sceneView.addChild(robotNode)
         sceneView.addChild(rifleNode)
         sceneView.addChild(tomNode)
-        sceneView.addChild(DragonNode)
+        sceneView.addChild(dragonNode)
         sofaNode.addChild(videoNode)
     }
 
@@ -169,8 +169,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun placeDragon() {
-        DragonNode.position = Position(x = -1.5f, y = 0f, z = 0f)
-        DragonNode.anchor()
+        dragonNode.position = Position(x = -1.5f, y = 0f, z = 0f)
+        dragonNode.anchor()
         placeDragonButton.isGone = true
     }
 

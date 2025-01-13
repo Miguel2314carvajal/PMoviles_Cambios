@@ -31,9 +31,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sofaNode: ArModelNode
     private lateinit var robotNode: ArModelNode
     private lateinit var rifleNode: ArModelNode
-    private lateinit var dragonNode: ArModelNode
     private lateinit var videoNode: VideoNode
     private lateinit var mediaPlayer:MediaPlayer
+    private lateinit var dragonNode: ArModelNode
     private lateinit var tomNode: ArModelNode
 
 

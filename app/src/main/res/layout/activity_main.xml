@@ -16,14 +16,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:background="#AA000000"
-        android:padding="12dp"
+        android:background="@drawable/distance_background"
+        android:padding="16dp"
         android:textColor="@android:color/white"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/placeModel"
+        android:gravity="center"
+        android:elevation="12dp"
+        android:visibility="visible"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/arrowImageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="32dp"/>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/placeModel"
@@ -35,6 +40,17 @@
         android:backgroundTint="#FF6200EE"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/arrowImageView"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ar_arrow"
+        android:layout_margin="16dp"
+        android:elevation="8dp"
+        app:layout_constraintTop_toBottomOf="@id/distanceText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 

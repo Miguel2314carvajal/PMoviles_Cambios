@@ -27,6 +27,8 @@ import android.location.LocationManager
 import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.widget.TextView
+import android.widget.ImageView
+import com.grupo3.realidadaumentada.util.CompassHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,14 +38,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationArrow: ArModelNode
     private lateinit var distanceText: TextView
     private var currentFaculty: Faculty? = null
+    private lateinit var locationManager: LocationManager
+    private lateinit var compassHelper: CompassHelper
+    private lateinit var arrowImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        distanceText = findViewById(R.id.distanceText)
         val facultyId = intent.getIntExtra(LocationsActivity.EXTRA_FACULTY_ID, -1)
         currentFaculty = FacultyData.faculties.find { it.id == facultyId }
 
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        
+        compassHelper = CompassHelper(this)
+        arrowImageView = findViewById(R.id.arrowImageView)
+        
         setupAR()
         setupUI()
         initializeModel()
@@ -89,11 +100,11 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigationArrow() {
         navigationArrow = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
-                glbFileLocation = "models/arrow.glb",
-                scaleToUnits = 0.5f,
+                glbFileLocation = "models/navigation_arrow.glb",
+                scaleToUnits = 0.3f,
                 centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
             )
-            position = Position(0f, 1.5f, -2f)
+            position = Position(0f, 0.5f, -1f)
         }
         sceneView.addChild(navigationArrow)
     }
@@ -101,7 +112,6 @@ class MainActivity : AppCompatActivity() {
     private fun startLocationUpdates() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == 
             PackageManager.PERMISSION_GRANTED) {
-            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 100L,
@@ -121,8 +131,70 @@ class MainActivity : AppCompatActivity() {
             val bearing = location.bearingTo(facultyLocation)
             
             runOnUiThread {
-                navigationArrow.rotation = Rotation(0f, bearing, 0f)
-                distanceText.text = String.format("%.2f metros", distance)
+                // Suavizar la rotación de la flecha
+                val currentRotation = arrowImageView.rotation
+                val targetRotation = bearing
+                val smoothRotation = smoothRotation(currentRotation, targetRotation)
+                arrowImageView.rotation = smoothRotation
+                
+                when {
+                    distance <= faculty.detectionRange -> {
+                        distanceText.text = "¡Has llegado a\n${faculty.name}!"
+                        distanceText.setBackgroundResource(R.drawable.success_background)
+                    }
+                    distance <= 100 -> {
+                        distanceText.text = "${faculty.name}\nMuy cerca: ${String.format("%.1f", distance)} metros"
+                    }
+                    else -> {
+                        distanceText.text = "${faculty.name}\nDistancia: ${String.format("%.1f", distance)} metros"
+                    }
+                }
+                distanceText.visibility = android.view.View.VISIBLE
+            }
+        }
+    }
+
+    private fun smoothRotation(current: Float, target: Float): Float {
+        var delta = target - current
+        
+        // Normalizar el delta para que esté entre -180 y 180
+        while (delta > 180) delta -= 360
+        while (delta < -180) delta += 360
+        
+        // Suavizar el movimiento
+        return current + (delta * 0.1f)
+    }
+
+    private fun calculateBearing(faculty: Faculty): Float {
+        val currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        return currentLocation?.let { location ->
+            val facultyLocation = Location("").apply {
+                latitude = faculty.latitude
+                longitude = faculty.longitude
+            }
+            location.bearingTo(facultyLocation)
+        } ?: 0f
+    }
+
+    override fun onPause() {
+        super.onPause()
+        compassHelper.stop()
+        try {
+            locationManager.removeUpdates(locationListener)
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+        compassHelper.start { rotation ->
+            currentFaculty?.let { faculty ->
+                val bearing = calculateBearing(faculty)
+                runOnUiThread {
+                    arrowImageView.rotation = rotation.y.toFloat() + bearing
+                }
             }
         }
     }

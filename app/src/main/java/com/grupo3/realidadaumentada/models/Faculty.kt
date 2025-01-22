@@ -6,5 +6,6 @@ data class Faculty(
     val description: String,
     val latitude: Double,
     val longitude: Double,
-    val modelPath: String = "models/tom.glb"
+    val modelPath: String = "models/dragon.glb",
+    val detectionRange: Float = 20f
 ) 

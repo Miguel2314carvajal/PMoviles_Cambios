@@ -11,66 +11,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/distanceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/button_background"
-        android:elevation="8dp"
+        android:layout_margin="16dp"
+        android:background="#AA000000"
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/placeModel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/placeModel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Colocar Modelo"
+        android:textSize="16sp"
+        android:backgroundTint="#FF6200EE"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.95">
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/placeSofa"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:text="Sofá"
-            android:textSize="16sp"
-            android:backgroundTint="#FF6200EE"
-            android:textColor="@color/white"/>
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/placeRobot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:text="Robot"
-            android:textSize="16sp"
-            android:backgroundTint="#FF03DAC5"
-            android:textColor="@color/white"/>
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/placeTom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:text="Tom"
-            android:textSize="16sp"
-            android:backgroundTint="#FF018786"
-            android:textColor="@color/white"/>
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/placeRifle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rifle"
-            android:textSize="16sp"
-            android:backgroundTint="#FF6200EE"
-            android:textColor="@color/white"/>
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/placeDragon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dragon"
-            android:textSize="16sp"
-            android:backgroundTint="#33ffe6"
-            android:textColor="@color/white"/>
-
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

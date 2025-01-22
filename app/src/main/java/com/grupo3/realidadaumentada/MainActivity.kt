@@ -19,168 +19,116 @@ import io.github.sceneview.material.setExternalTexture
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.VideoNode
+import com.grupo3.realidadaumentada.models.Faculty
+import com.grupo3.realidadaumentada.data.FacultyData
+import android.Manifest
+import android.location.Location
+import android.location.LocationManager
+import android.content.pm.PackageManager
+import android.location.LocationListener
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var sceneView: ArSceneView
-    private lateinit var placeSofaButton: ExtendedFloatingActionButton
-    private lateinit var placeRobotButton: ExtendedFloatingActionButton
-    private lateinit var placeTomButton: ExtendedFloatingActionButton
-    private lateinit var placeRifleButton: ExtendedFloatingActionButton
-    private lateinit var placeDragonButton: ExtendedFloatingActionButton
-    private lateinit var sofaNode: ArModelNode
-    private lateinit var robotNode: ArModelNode
-    private lateinit var rifleNode: ArModelNode
-    private lateinit var videoNode: VideoNode
-    private lateinit var mediaPlayer:MediaPlayer
-    private lateinit var dragonNode: ArModelNode
-    private lateinit var tomNode: ArModelNode
-
-
+    private lateinit var placeModelButton: ExtendedFloatingActionButton
+    private lateinit var modelNode: ArModelNode
+    private lateinit var navigationArrow: ArModelNode
+    private lateinit var distanceText: TextView
+    private var currentFaculty: Faculty? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val facultyId = intent.getIntExtra(LocationsActivity.EXTRA_FACULTY_ID, -1)
+        currentFaculty = FacultyData.faculties.find { it.id == facultyId }
+
+        setupAR()
+        setupUI()
+        initializeModel()
+        setupNavigationArrow()
+        startLocationUpdates()
+    }
+
+    private fun setupAR() {
         sceneView = findViewById(R.id.sceneView)
         sceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
+    }
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.ad)
-        placeSofaButton = findViewById(R.id.placeSofa)
-        placeRobotButton = findViewById(R.id.placeRobot)
-        placeTomButton = findViewById(R.id.placeTom)
-        placeRifleButton = findViewById(R.id.placeRifle)
-        placeDragonButton = findViewById(R.id.placeDragon)
-
-        initializeModels()
-
-        placeSofaButton.setOnClickListener {
-            placeSofa()
-        }
-
-        placeRobotButton.setOnClickListener {
-            placeRobot()
-        }
-
-        placeTomButton.setOnClickListener {
-            placeTom()
-        }
-
-        placeRifleButton.setOnClickListener {
-            placeRifle()
-        }
-
-        placeDragonButton.setOnClickListener {
-            placeDragon()
+    private fun setupUI() {
+        placeModelButton = findViewById<ExtendedFloatingActionButton>(R.id.placeModel).apply {
+            text = "Colocar Modelo en ${currentFaculty?.name}"
+            setOnClickListener { placeModel() }
         }
     }
 
-    private fun initializeModels() {
-        // Inicializar sofa
-        sofaNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+    private fun initializeModel() {
+        modelNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
-                glbFileLocation = "models/sofa.glb",
-                scaleToUnits = 1f,
-                centerOrigin = Position(-0.5f)
+                glbFileLocation = currentFaculty?.modelPath ?: "models/dragon.glb",
+                scaleToUnits = 1.0f,
+                centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
             )
+            onAnchorChanged = { anchor ->
+                placeModelButton.isEnabled = anchor == null
+            }
         }
+        sceneView.addChild(modelNode)
+        modelNode.position = Position(0f, 0f, -2f)
+    }
 
-        // Inicializar robot
-        robotNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
+    private fun placeModel() {
+        if (!this::modelNode.isInitialized) {
+            initializeModel()
+        }
+        modelNode.anchor()
+        placeModelButton.isEnabled = false
+    }
+
+    private fun setupNavigationArrow() {
+        navigationArrow = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
-                glbFileLocation = "models/scorpion.glb",
+                glbFileLocation = "models/arrow.glb",
                 scaleToUnits = 0.5f,
-                centerOrigin = Position(-0.5f)
+                centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
+            )
+            position = Position(0f, 1.5f, -2f)
+        }
+        sceneView.addChild(navigationArrow)
+    }
+
+    private fun startLocationUpdates() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == 
+            PackageManager.PERMISSION_GRANTED) {
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                100L,
+                0.1f,
+                locationListener
             )
         }
+    }
 
-        // Inicializar rifle
-        rifleNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
-            loadModelGlbAsync(
-                glbFileLocation = "models/rifle.glb",
-                scaleToUnits = 0.3f,
-                centerOrigin = Position(-0.5f)
-            )
+    private val locationListener = LocationListener { location ->
+        currentFaculty?.let { faculty ->
+            val facultyLocation = Location("").apply {
+                latitude = faculty.latitude
+                longitude = faculty.longitude
+            }
+            val distance = location.distanceTo(facultyLocation)
+            val bearing = location.bearingTo(facultyLocation)
+            
+            runOnUiThread {
+                navigationArrow.rotation = Rotation(0f, bearing, 0f)
+                distanceText.text = String.format("%.2f metros", distance)
+            }
         }
-
-        // Inicializar tom
-        tomNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
-            loadModelGlbAsync(
-                glbFileLocation = "models/tom.glb",
-                scaleToUnits = 0.4f,
-                centerOrigin = Position(-0.5f)
-            )
-        }
-
-        // Inicializar Dragon
-        dragonNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
-            loadModelGlbAsync(
-                glbFileLocation = "models/dragon.glb",
-                scaleToUnits = 0.6f,
-                centerOrigin = Position(-0.5f)
-            )
-        }
-
-        // Configurar el video
-        videoNode = VideoNode(
-            sceneView.engine,
-            scaleToUnits = 0.7f,
-            centerOrigin = Position(y = -4f),
-            glbFileLocation = "models/plane.glb",
-            player = mediaPlayer
-        ) { _, _ ->
-            mediaPlayer.start()
-        }
-
-        // Agregar todos los modelos a la escena
-        sceneView.addChild(sofaNode)
-        sceneView.addChild(robotNode)
-        sceneView.addChild(rifleNode)
-        sceneView.addChild(tomNode)
-        sceneView.addChild(dragonNode)
-        sofaNode.addChild(videoNode)
     }
 
-    private fun placeSofa() {
-        sofaNode.position = Position(x = 0f, y = 0f, z = 0f)
-        sofaNode.anchor()
-        placeSofaButton.isGone = true
-    }
-
-    private fun placeRobot() {
-        robotNode.position = Position(x = 1.5f, y = 0f, z = 0f)
-        robotNode.anchor()
-        placeRobotButton.isGone = true
-    }
-
-    private fun placeTom() {
-        if (!sceneView.children.contains(tomNode)) {
-            sceneView.addChild(tomNode)
-        }
-        tomNode.isVisible = true
-        tomNode.anchor()
-        placeTomButton.isGone = true
-    }
-
-    private fun placeRifle() {
-        rifleNode.position = Position(x = -1.5f, y = 0f, z = 0f)
-        rifleNode.anchor()
-        placeRifleButton.isGone = true
-    }
-
-    private fun placeDragon() {
-        dragonNode.position = Position(x = -1.5f, y = 0f, z = 0f)
-        dragonNode.anchor()
-        placeDragonButton.isGone = true
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer.stop()
-    }
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.release()
+        sceneView.destroy()
     }
-
 }

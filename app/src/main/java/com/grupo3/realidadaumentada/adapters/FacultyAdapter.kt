@@ -29,7 +29,7 @@ class FacultyAdapter(
             facultyName.text = faculty.name
             val distance = distances[faculty.id]
             facultyDescription.text = if (distance != null) {
-                "${faculty.description}\nDistancia: ${String.format("%.2f", distance/1000)} km"
+                "${faculty.description}\nDistancia: ${formatDistance(distance)}"
             } else {
                 faculty.description
             }
@@ -54,5 +54,16 @@ class FacultyAdapter(
     fun updateDistance(facultyId: Int, distance: Float) {
         distances[facultyId] = distance
         notifyDataSetChanged()
+    }
+
+    private fun formatDistance(distance: Float): String {
+        return when {
+            distance >= 1000 -> {
+                String.format("%.2f km", distance / 1000)
+            }
+            else -> {
+                String.format("%.0f m", distance)
+            }
+        }
     }
 } 

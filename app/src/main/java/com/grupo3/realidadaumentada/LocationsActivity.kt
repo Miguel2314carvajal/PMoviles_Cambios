@@ -36,6 +36,22 @@ class LocationsActivity : AppCompatActivity() {
 
     private fun setupLocationClient() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
+            .setMinUpdateDistanceMeters(0.1f)
+            .setMaxUpdateDelayMillis(100)
+            .setWaitForAccurateLocation(false)
+            .build()
+
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -72,8 +88,10 @@ class LocationsActivity : AppCompatActivity() {
 
     private fun startLocationUpdates() {
         try {
-            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
-                .setMinUpdateDistanceMeters(1f)
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
+                .setMinUpdateDistanceMeters(0.1f)
+                .setMaxUpdateDelayMillis(100)
+                .setWaitForAccurateLocation(false)
                 .build()
 
             fusedLocationClient.requestLocationUpdates(
@@ -88,8 +106,10 @@ class LocationsActivity : AppCompatActivity() {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
-            currentLocation = result.lastLocation
-            updateDistances()
+            result.lastLocation?.let { location ->
+                currentLocation = location
+                updateDistances()
+            }
         }
     }
 
@@ -101,14 +121,19 @@ class LocationsActivity : AppCompatActivity() {
                     longitude = faculty.longitude
                 }
                 val distance = location.distanceTo(facultyLocation)
-                facultyAdapter.updateDistance(faculty.id, distance)
+                runOnUiThread {
+                    facultyAdapter.updateDistance(faculty.id, distance)
+                }
             }
         }
     }
 
     private fun requestLastLocation() {
         try {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                null
+            ).addOnSuccessListener { location ->
                 location?.let {
                     currentLocation = it
                     updateDistances()
@@ -136,6 +161,15 @@ class LocationsActivity : AppCompatActivity() {
             grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startLocationUpdates()
             requestLastLocation()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        try {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

@@ -29,6 +29,8 @@ import android.location.LocationListener
 import android.widget.TextView
 import android.widget.ImageView
 import com.grupo3.realidadaumentada.util.CompassHelper
+import android.os.Handler
+import android.os.Looper
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,11 +49,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         distanceText = findViewById(R.id.distanceText)
+        distanceText.text = "Obteniendo ubicación..."
+        distanceText.visibility = android.view.View.VISIBLE
+
         val facultyId = intent.getIntExtra(LocationsActivity.EXTRA_FACULTY_ID, -1)
         currentFaculty = FacultyData.faculties.find { it.id == facultyId }
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        
         compassHelper = CompassHelper(this)
         arrowImageView = findViewById(R.id.arrowImageView)
         
@@ -59,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         initializeModel()
         setupNavigationArrow()
+        
+        // Iniciar ubicación inmediatamente
         startLocationUpdates()
     }
 
@@ -112,12 +118,41 @@ class MainActivity : AppCompatActivity() {
     private fun startLocationUpdates() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == 
             PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                100L,
-                0.1f,
-                locationListener
-            )
+            try {
+                // Solicitar actualizaciones más frecuentes
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    100L, // 100ms
+                    0.1f, // 0.1 metros
+                    locationListener
+                )
+                
+                // Obtener última ubicación conocida inmediatamente
+                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.let { location ->
+                    locationListener.onLocationChanged(location)
+                }
+                
+                // Intentar con el proveedor de red si el GPS no responde
+                locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER,
+                    100L,
+                    0.1f,
+                    locationListener
+                )
+            } catch (e: SecurityException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun formatDistance(distance: Float): String {
+        return when {
+            distance >= 1000 -> {
+                String.format("%.2f km", distance / 1000)
+            }
+            else -> {
+                String.format("%.0f m", distance)
+            }
         }
     }
 
@@ -142,11 +177,8 @@ class MainActivity : AppCompatActivity() {
                         distanceText.text = "¡Has llegado a\n${faculty.name}!"
                         distanceText.setBackgroundResource(R.drawable.success_background)
                     }
-                    distance <= 100 -> {
-                        distanceText.text = "${faculty.name}\nMuy cerca: ${String.format("%.1f", distance)} metros"
-                    }
                     else -> {
-                        distanceText.text = "${faculty.name}\nDistancia: ${String.format("%.1f", distance)} metros"
+                        distanceText.text = "${faculty.name}\nDistancia: ${formatDistance(distance)}"
                     }
                 }
                 distanceText.visibility = android.view.View.VISIBLE
@@ -201,6 +233,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            locationManager.removeUpdates(locationListener)
+            compassHelper.stop()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         sceneView.destroy()
     }
 }

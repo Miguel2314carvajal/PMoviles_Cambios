@@ -66,6 +66,9 @@ class MainActivity : AppCompatActivity() {
         
         // Iniciar ubicación inmediatamente
         startLocationUpdates()
+
+        // Ocultar el botón inicialmente
+        placeModelButton.visibility = android.view.View.GONE
     }
 
     private fun setupAR() {
@@ -166,11 +169,17 @@ class MainActivity : AppCompatActivity() {
             val bearing = location.bearingTo(facultyLocation)
             
             runOnUiThread {
-                // Suavizar la rotación de la flecha
                 val currentRotation = arrowImageView.rotation
                 val targetRotation = bearing
                 val smoothRotation = smoothRotation(currentRotation, targetRotation)
                 arrowImageView.rotation = smoothRotation
+                
+                // Mostrar/ocultar botón según la distancia
+                placeModelButton.visibility = if (distance <= faculty.detectionRange) {
+                    android.view.View.VISIBLE
+                } else {
+                    android.view.View.GONE
+                }
                 
                 when {
                     distance <= faculty.detectionRange -> {

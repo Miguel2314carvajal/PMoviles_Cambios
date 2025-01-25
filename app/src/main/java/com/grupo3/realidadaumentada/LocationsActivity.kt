@@ -108,22 +108,21 @@ class LocationsActivity : AppCompatActivity() {
         override fun onLocationResult(result: LocationResult) {
             result.lastLocation?.let { location ->
                 currentLocation = location
-                updateDistances()
+                // Actualizar inmediatamente
+                updateDistancesImmediate(location)
             }
         }
     }
 
-    private fun updateDistances() {
-        currentLocation?.let { location ->
-            FacultyData.faculties.forEach { faculty ->
-                val facultyLocation = Location("").apply {
-                    latitude = faculty.latitude
-                    longitude = faculty.longitude
-                }
-                val distance = location.distanceTo(facultyLocation)
-                runOnUiThread {
-                    facultyAdapter.updateDistance(faculty.id, distance)
-                }
+    private fun updateDistancesImmediate(location: Location) {
+        FacultyData.faculties.forEach { faculty ->
+            val facultyLocation = Location("").apply {
+                latitude = faculty.latitude
+                longitude = faculty.longitude
+            }
+            val distance = location.distanceTo(facultyLocation)
+            runOnUiThread {
+                facultyAdapter.updateDistance(faculty.id, distance)
             }
         }
     }
@@ -136,7 +135,7 @@ class LocationsActivity : AppCompatActivity() {
             ).addOnSuccessListener { location ->
                 location?.let {
                     currentLocation = it
-                    updateDistances()
+                    updateDistancesImmediate(it)
                 }
             }
         } catch (e: SecurityException) {
